@@ -1,10 +1,11 @@
-.products-container {
+.product-sections {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  height: 70vh;
+  margin: auto;
+  width: 90%;
+  max-width: 1110px;
 }
+
 .products-img {
   width: 150px;
 }
