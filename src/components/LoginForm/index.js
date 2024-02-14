@@ -1,35 +1,76 @@
-import {useState} from 'react'
-import Cookies from 'js-cookie'
-import {useNavigate} from 'react-router-dom'
-
+// Write your JS code here
+import {Component} from 'react'
 import './index.css'
 
-const LoginForm = () => {
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
-  const [showSubmitError, setShowSubmitError] = useState(false)
-  const [errorMsg, setErrorMsg] = useState('')
-  const navigate = useNavigate()
-
-  const onChangeUsername = event => {
-    setUsername(event.target.value)
+class LoginForm extends Component {
+  state = {
+    usernameInput: '',
+    passwordInput: '',
+    showSubmitError: false,
+    errorMessage: '',
   }
 
-  const onChangePassword = event => {
-    setPassword(event.target.value)
+  onChangeUsernameInput = event => {
+    this.setState({usernameInput: event.target.value})
   }
-  const onSubmitSuccess = jwtToken => {
-    // Storing JWT token
-    Cookies.set('jwt_token', jwtToken, {expires: 30})
-    navigate('/')
+
+  onChangePasswordInput = event => {
+    this.setState({passwordInput: event.target.value})
   }
-  const onSubmitFailure = errorMsg => {
-    setShowSubmitError(true)
-    setErrorMsg(errorMsg)
+
+  onSubmitSuccess = () => {
+    const {history} = this.props
+    history.replace('/')
   }
-  const onSubmitForm = async event => {
+
+  onSubmitFailure = errorMessage => {
+    this.setState({showSubmitError: true, errorMessage})
+  }
+
+  renderUsernameInputField = () => {
+    const {usernameInput} = this.state
+
+    return (
+      <div className="input-container">
+        <label className="input-label" htmlFor="username">
+          USERNAME
+        </label>
+        <input
+          type="text"
+          id="username"
+          className="username-input-field"
+          value={usernameInput}
+          onChange={this.onChangeUsernameInput}
+          placeholder="Username"
+        />
+      </div>
+    )
+  }
+
+  renderPasswordInputField = () => {
+    const {passwordInput} = this.state
+
+    return (
+      <div className="input-container">
+        <label className="input-label" htmlFor="password">
+          PASSWORD
+        </label>
+        <input
+          type="password"
+          id="password"
+          className="password-input-field"
+          value={passwordInput}
+          onChange={this.onChangePasswordInput}
+          placeholder="Password"
+        />
+      </div>
+    )
+  }
+
+  onSubmitForm = async event => {
     event.preventDefault()
-    const userDetails = {username, password}
+    const {usernameInput, passwordInput} = this.state
+    const userDetails = {username: usernameInput, password: passwordInput}
     const url = 'https://apis.ccbp.in/login'
     const options = {
       method: 'POST',
@@ -37,72 +78,44 @@ const LoginForm = () => {
     }
     const response = await fetch(url, options)
     const data = await response.json()
-    console.log(data)
     if (response.ok === true) {
-      onSubmitSuccess(data.jwt_token)
+      this.onSubmitSuccess()
     } else {
-      onSubmitFailure(data.error_msg)
+      this.onSubmitFailure(data.error_msg)
     }
   }
 
-  const renderPasswordField = () => (
-    <>
-      <label className="input-label" htmlFor="password">
-        PASSWORD
-      </label>
-      <input
-        type="password"
-        id="password"
-        className="password-input-field"
-        value={password}
-        onChange={onChangePassword}
-        placeholder="Password"
-      />
-    </>
-  )
+  render() {
+    const {showSubmitError, errorMessage} = this.state
 
-  const renderUsernameField = () => (
-    <>
-      <label className="input-label" htmlFor="username">
-        USERNAME
-      </label>
-      <input
-        type="text"
-        id="username"
-        className="username-input-field"
-        value={username}
-        onChange={onChangeUsername}
-        placeholder="Username"
-      />
-    </>
-  )
-  return (
-    <div className="login-form-container">
-      <img
-        src="https://assets.ccbp.in/frontend/react-js/nxt-trendz-logo-img.png"
-        className="login-website-logo-mobile-img"
-        alt="website logo"
-      />
-      <img
-        src="https://assets.ccbp.in/frontend/react-js/nxt-trendz-login-img.png"
-        className="login-img"
-        alt="website login"
-      />
-      <form className="form-container" onSubmit={onSubmitForm}>
+    return (
+      <div className="login-form-container">
         <img
           src="https://assets.ccbp.in/frontend/react-js/nxt-trendz-logo-img.png"
-          className="login-website-logo-desktop-img"
+          className="login-website-logo-mobile-img"
           alt="website logo"
         />
-        <div className="input-container">{renderUsernameField()}</div>
-        <div className="input-container">{renderPasswordField()}</div>
-        <button type="submit" className="login-button">
-          Login
-        </button>
-        {showSubmitError && <p className="error-message">*{errorMsg}</p>}
-      </form>
-    </div>
-  )
+        <img
+          src="https://assets.ccbp.in/frontend/react-js/nxt-trendz-login-img.png"
+          className="login-img"
+          alt="website login"
+        />
+        <form className="login-form" onSubmit={this.onSubmitForm}>
+          <img
+            src="https://assets.ccbp.in/frontend/react-js/nxt-trendz-logo-img.png"
+            className="login-website-logo-desktop-img"
+            alt="website logo"
+          />
+          {this.renderUsernameInputField()}
+          {this.renderPasswordInputField()}
+          <button type="submit" className="login-button">
+            Login
+          </button>
+          {showSubmitError && <p className="error-message">*{errorMessage}</p>}
+        </form>
+      </div>
+    )
+  }
 }
 
 export default LoginForm
